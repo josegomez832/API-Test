@@ -1,4 +1,8 @@
-<?php
+<?
+
+
+
+function instagram_tag(){
 	$client_id = '9544d2a52af545ea911ea49e6c17e3a1';
     $client_secret = '4a95cc1c09664b16b0ed17d105144d85';
     $token = "31266149.9544d2a.8030b2bbca864d009801eab4646ff5c2";
@@ -8,8 +12,10 @@
     $tags = json_decode($tag_response, true);
     
    // print_r($tags);
-   
 
-    ?>
+    echo $tags['data']['media_count'];
+}
 
-    <h1>Number of times #houston is liked: <?php echo $tags['data']['media_count']; ?></h1>
+function instagram_location(){
+
+}

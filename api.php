@@ -59,7 +59,7 @@
     $results = json_decode($response, TRUE);
     echo '<div style="height:400px;overflow:scroll;">';
     echo "<pre>";
-    //print_r($results);
+    print_r($results);
     echo "</pre>";
     echo '</div>';
  
@@ -90,7 +90,7 @@
 <script type="text/javascript">
 
   var interval = setInterval(function(){
-    refresh_box()}, 1000);
+    refresh_box()}, 6000);
   function refresh_box() {
     $(".tags").load('tags.php');
   }
