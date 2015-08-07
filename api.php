@@ -24,7 +24,7 @@
     margin:0;
     display: inline-block;
   }
-  #map-canvas{
+  #map{
   	width:50%;
   	height:400px;
   }
@@ -54,7 +54,7 @@
     //if getting a 403 error visit https://teamtreehouse.com/forum/oauth-error-403
 
     //Need to create lat and lng as variables
-    $request = "https://api.instagram.com/v1/media/search?lat=29.817178&lng=-95.4012915&client_id=".$client_id;
+    $request = "https://api.instagram.com/v1/media/search?lat=29.7575275&lng=-95.3580718&distance=1000&client_id=".$client_id;
     $response = file_get_contents($request);
     $results = json_decode($response, TRUE);
     echo '<div style="height:400px;overflow:scroll;">';
@@ -64,7 +64,7 @@
     echo '</div>';
  
 ?>
-<div id="map-canvas"></div>
+<div id="map"></div>
 <div class="tags"></div>
   <h1>Hashtag</h1>
   <ul>
@@ -100,91 +100,91 @@
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKB7Oy4gwlex36Tm9Pq676FR6C8fwJq7k"></script>
   <script type="text/javascript">
       function initialize() {
-      	var instgram_location = new google.maps.LatLng(<?php echo $results['data'][0]['location']['latitude']; ?>,<?php echo $results['data'][0]['location']['longitude']; ?>);
-      	var styles = [
-			  {
-			    stylers: [
-			      { hue: "#00ffe6" },
-			      { saturation: -20 }
-			    ]
-			  },{
-			    featureType: "road",
-			    elementType: "geometry",
-			    stylers: [
-			      { lightness: 100 },
-			      { visibility: "simplified" }
-			    ]
-			  },{
-			    featureType: "road",
-			    elementType: "labels",
-			    stylers: [
-			      { visibility: "off" }
-			    ]
-			  }
-			];
-		var styledMap = new google.maps.StyledMapType(styles, {name: "Styled Map"});
-        var mapOptions = {
-          center: instgram_location,
-          zoom: 12,
-          mapTypeControlOptions: {
-     		 mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
-    		}
-      };
-        var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions );
-         	map.mapTypes.set('map_style', styledMap);
-  			map.setMapTypeId('map_style');
-        var marker = new google.maps.Marker({
-      		position:instgram_location,
-      		map:map,
-      		title: ""
-      	});
-      	var homeWindow = new google.maps.InfoWindow({
-      		content: "<img src='<?php echo $results['data'][0]['images']['thumbnail']['url'];?>' />"
-      	});
-  		google.maps.event.addListener(marker, 'click', function() {
-      	homeWindow.open(map, marker);
-      	
 
-  		});
 
-      }
+
+        var locations = [
+
+           <?php foreach($results['data'] as $locations){ ?>
+                ["<?php echo $locations['caption']['from']['username']; ?>", <?php echo $locations['location']['latitude']; ?>,<?php echo $locations['location']['longitude'];?>],
+          <?php }?>
+           
+                
+        ];
+
+
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 10,
+          center: new google.maps.LatLng(<?php echo $results['data'][0]['location']['latitude']; ?>,<?php echo $results['data'][0]['location']['longitude']; ?>),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+     	
+
+
+
+          var infowindow = new google.maps.InfoWindow();
+          var marker, i;
+          var markers = new Array();
+          for (i=0; i<locations.length;i++){
+              marker = new google.maps.Marker({
+                position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+                map:map
+              });
+              markers.push(marker);
+              google.maps.event.addListener(marker, 'click', (function(marker, i){
+                  return function(){
+                    infowindow.setContent(locations[i][0]);
+                    infowindow.open(map, marker);
+                  }//return function
+              })(marker, i));//eventlistener
+            }//for loop
+
+
+
+
+      function AutoCenter() {
+        //  Create a new viewpoint bound
+        var bounds = new google.maps.LatLngBounds();
+        //  Go through each...
+        $.each(markers, function (index, marker) {
+            bounds.extend(marker.position);
+        });
+          //  Fit these bounds to the map
+          map.fitBounds(bounds);
+        }
+        AutoCenter();
+      }//initialize
       
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
     <script>
 
     var pieData = [
-        {
-          value: <?php echo $results['data'][0]['likes']['count'];?>,
-          color:"#F7464A",
-          highlight: "#FF5A5E",
-          label: "<?php echo $results['data'][0]['user']['username'];?>"
+     <?php
+          //$colors = array('#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360' );
+          //$hex = count($colors);        
+          foreach($results['data'] as $likes){  
+      ?>
+          {
+          value: <?php echo $likes['likes']['count'];?>,
+          color: "
+            <?php 
+              for($i=0;$i<$hex;$i++){ 
+                echo $hex;
+              }
+            
+            
+          ?>",
+                
+          label: "<?php echo $likes['user']['username'];?>"
         },
-        {
-          value: <?php echo $results['data'][1]['likes']['count'];?>,
-          color: "#46BFBD",
-          highlight: "#5AD3D1",
-          label: "<?php echo $results['data'][1]['user']['username'];?>"
-        },
-        {
-          value: <?php echo $results['data'][2]['likes']['count'];?>,
-          color: "#FDB45C",
-          highlight: "#FFC870",
-          label: "<?php echo $results['data'][2]['user']['username'];?>"
-        },
-        {
-          value: <?php echo $results['data'][3]['likes']['count'];?>,
-          color: "#949FB1",
-          highlight: "#A8B3C5",
-          label: "<?php echo $results['data'][3]['user']['username'];?>"
-        },
-        {
-          value: <?php echo $results['data'][4]['likes']['count'];?>,
-          color: "#4D5360",
-          highlight: "#616774",
-          label: "<?php echo $results['data'][4]['user']['username'];?>"
-        }
 
+
+      <?php
+         }
+      ?>
+       
       ];
 
       window.onload = function(){
