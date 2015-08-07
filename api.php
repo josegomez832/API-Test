@@ -159,7 +159,9 @@
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
     <script>
-
+    var hex =[
+        
+    ]
     var pieData = [
      <?php
           //$colors = array('#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360' );
